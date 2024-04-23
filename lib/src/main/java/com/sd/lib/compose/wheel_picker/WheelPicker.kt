@@ -14,10 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -51,7 +48,11 @@ fun VerticalWheelPicker(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     focus: @Composable () -> Unit = { WheelPickerFocusVertical() },
-    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = {
+        DefaultWheelPickerDisplay(
+            it
+        )
+    },
     content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
     WheelPicker(
@@ -81,7 +82,11 @@ fun HorizontalWheelPicker(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     focus: @Composable () -> Unit = { WheelPickerFocusHorizontal() },
-    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = {
+        DefaultWheelPickerDisplay(
+            it
+        )
+    },
     content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
     WheelPicker(
@@ -137,9 +142,7 @@ private fun WheelPicker(
     }
 
     val displayScope = remember(state) {
-        WheelPickerDisplayScopeImpl(state)
-    }.apply {
-        this.content = content
+        WheelPickerDisplayScopeImpl(state, content)
     }
 
     Box(
@@ -158,37 +161,40 @@ private fun WheelPicker(
             },
         contentAlignment = Alignment.Center,
     ) {
-        val lazyListScope: LazyListScope.() -> Unit = {
-            repeat(unfocusedCount) {
-                item(contentType = "placeholder") {
-                    ItemSizeBox(
-                        isVertical = isVertical,
-                        itemSize = itemSize,
-                    )
-                }
-            }
+        val lazyListScope: LazyListScope.() -> Unit =
+            remember(unfocusedCount, count, isVertical, itemSize, displayScope) {
+                {
+                    repeat(unfocusedCount) {
+                        item(contentType = "placeholder") {
+                            ItemSizedBox(
+                                isVertical = isVertical,
+                                itemSize = itemSize,
+                            )
+                        }
+                    }
 
-            items(
-                count = count,
-                key = key,
-            ) { index ->
-                ItemSizeBox(
-                    isVertical = isVertical,
-                    itemSize = itemSize,
-                ) {
-                    displayScope.display(index)
-                }
-            }
+                    items(
+                        count = count,
+                        key = key,
+                    ) { index ->
+                        ItemSizedBox(
+                            isVertical = isVertical,
+                            itemSize = itemSize,
+                        ) {
+                            displayScope.display(index)
+                        }
+                    }
 
-            repeat(unfocusedCount) {
-                item(contentType = "placeholder") {
-                    ItemSizeBox(
-                        isVertical = isVertical,
-                        itemSize = itemSize,
-                    )
+                    repeat(unfocusedCount) {
+                        item(contentType = "placeholder") {
+                            ItemSizedBox(
+                                isVertical = isVertical,
+                                itemSize = itemSize,
+                            )
+                        }
+                    }
                 }
             }
-        }
 
         if (isVertical) {
             LazyColumn(
@@ -210,7 +216,7 @@ private fun WheelPicker(
             )
         }
 
-        ItemSizeBox(
+        ItemSizedBox(
             modifier = Modifier.align(Alignment.Center),
             isVertical = isVertical,
             itemSize = itemSize,
@@ -221,11 +227,11 @@ private fun WheelPicker(
 }
 
 @Composable
-private fun ItemSizeBox(
+private fun ItemSizedBox(
     modifier: Modifier = Modifier,
     isVertical: Boolean,
     itemSize: Dp,
-    content: @Composable () -> Unit = { },
+    content: @Composable () -> Unit = {},
 ) {
     Box(
         modifier
@@ -249,7 +255,11 @@ private class WheelPickerNestedScrollConnection(
     var itemSizePx: Int = 0
     var reverseLayout: Boolean = false
 
-    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource
+    ): Offset {
         state.synchronizeCurrentIndexSnapshot()
         return super.onPostScroll(consumed, available, source)
     }
@@ -292,9 +302,8 @@ private fun Velocity.flingItemCount(
 @Stable
 private class WheelPickerDisplayScopeImpl(
     override val state: WheelPickerState,
+    private val content: @Composable WheelPickerContentScope.(index: Int) -> Unit
 ) : WheelPickerDisplayScope {
-
-    var content: @Composable WheelPickerContentScope.(index: Int) -> Unit by mutableStateOf({})
 
     @Composable
     override fun Content(index: Int) {
