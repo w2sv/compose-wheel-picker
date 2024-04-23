@@ -161,40 +161,15 @@ private fun WheelPicker(
             },
         contentAlignment = Alignment.Center,
     ) {
-        val lazyListScope: LazyListScope.() -> Unit =
-            remember(unfocusedCount, count, isVertical, itemSize, displayScope) {
-                {
-                    repeat(unfocusedCount) {
-                        item(contentType = "placeholder") {
-                            ItemSizedBox(
-                                isVertical = isVertical,
-                                itemSize = itemSize,
-                            )
-                        }
-                    }
-
-                    items(
-                        count = count,
-                        key = key,
-                    ) { index ->
-                        ItemSizedBox(
-                            isVertical = isVertical,
-                            itemSize = itemSize,
-                        ) {
-                            displayScope.display(index)
-                        }
-                    }
-
-                    repeat(unfocusedCount) {
-                        item(contentType = "placeholder") {
-                            ItemSizedBox(
-                                isVertical = isVertical,
-                                itemSize = itemSize,
-                            )
-                        }
-                    }
-                }
-            }
+        val lazyListContent = rememberLazyListContent(
+            unfocusedCount = unfocusedCount,
+            count = count,
+            isVertical = isVertical,
+            itemSize = itemSize,
+            displayScope = displayScope,
+            key = key,
+            display = display
+        )
 
         if (isVertical) {
             LazyColumn(
@@ -203,7 +178,7 @@ private fun WheelPicker(
                 reverseLayout = reverseLayout,
                 userScrollEnabled = userScrollEnabled,
                 modifier = Modifier.matchParentSize(),
-                content = lazyListScope,
+                content = lazyListContent,
             )
         } else {
             LazyRow(
@@ -212,7 +187,7 @@ private fun WheelPicker(
                 reverseLayout = reverseLayout,
                 userScrollEnabled = userScrollEnabled,
                 modifier = Modifier.matchParentSize(),
-                content = lazyListScope,
+                content = lazyListContent,
             )
         }
 
@@ -222,6 +197,51 @@ private fun WheelPicker(
             itemSize = itemSize,
         ) {
             focus()
+        }
+    }
+}
+
+@Composable
+private fun rememberLazyListContent(
+    unfocusedCount: Int,
+    count: Int,
+    isVertical: Boolean,
+    itemSize: Dp,
+    displayScope: WheelPickerDisplayScope,
+    key: ((index: Int) -> Any)?,
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit,
+): LazyListScope.() -> Unit {
+    return remember(unfocusedCount, count, isVertical, itemSize, displayScope, key) {
+        {
+            repeat(unfocusedCount) {
+                item(contentType = "placeholder") {
+                    ItemSizedBox(
+                        isVertical = isVertical,
+                        itemSize = itemSize,
+                    )
+                }
+            }
+
+            items(
+                count = count,
+                key = key,
+            ) { index ->
+                ItemSizedBox(
+                    isVertical = isVertical,
+                    itemSize = itemSize,
+                ) {
+                    displayScope.display(index)
+                }
+            }
+
+            repeat(unfocusedCount) {
+                item(contentType = "placeholder") {
+                    ItemSizedBox(
+                        isVertical = isVertical,
+                        itemSize = itemSize,
+                    )
+                }
+            }
         }
     }
 }
