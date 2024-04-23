@@ -24,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sd.demo.wheel_picker.ui.theme.AppTheme
-import com.sd.lib.compose.wheel_picker.FVerticalWheelPicker
-import com.sd.lib.compose.wheel_picker.FWheelPickerFocusVertical
-import com.sd.lib.compose.wheel_picker.rememberFWheelPickerState
+import com.sd.lib.compose.wheel_picker.VerticalWheelPicker
+import com.sd.lib.compose.wheel_picker.WheelPickerFocusVertical
+import com.sd.lib.compose.wheel_picker.rememberWheelPickerState
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -55,7 +55,7 @@ private fun MainView() {
 
 @Composable
 private fun SampleDefault() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         // Specified item count.
         count = 50,
@@ -67,7 +67,7 @@ private fun SampleDefault() {
 
 @Composable
 fun SampleCustomItemSize() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         // Specified item height.
@@ -79,7 +79,7 @@ fun SampleCustomItemSize() {
 
 @Composable
 fun SampleCustomUnfocusedCount() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         // Specified unfocused count.
@@ -91,12 +91,12 @@ fun SampleCustomUnfocusedCount() {
 
 @Composable
 private fun SampleCustomDivider() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         focus = {
             // Custom divider.
-            FWheelPickerFocusVertical(dividerColor = Color.Red, dividerThickness = 2.dp)
+            WheelPickerFocusVertical(dividerColor = Color.Red, dividerThickness = 2.dp)
         },
     ) {
         Text(it.toString())
@@ -105,7 +105,7 @@ private fun SampleCustomDivider() {
 
 @Composable
 private fun SampleCustomFocus() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         focus = {
@@ -124,14 +124,14 @@ private fun SampleCustomFocus() {
 @Composable
 private fun SampleScrollToIndex() {
     // Specified initial index.
-    val state = rememberFWheelPickerState(10)
+    val state = rememberWheelPickerState(10)
     LaunchedEffect(state) {
         delay(2000)
         // Scroll to index.
         state.animateScrollToIndex(20)
     }
 
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         // state
@@ -144,8 +144,8 @@ private fun SampleScrollToIndex() {
 
 @Composable
 private fun SampleObserveIndex() {
-    val state = rememberFWheelPickerState()
-    FVerticalWheelPicker(
+    val state = rememberWheelPickerState()
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         state = state,
@@ -172,7 +172,7 @@ private fun SampleObserveIndex() {
 
 @Composable
 private fun SampleCustomDisplay() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         display = { index ->
@@ -196,7 +196,7 @@ private fun SampleCustomDisplay() {
 
 @Composable
 private fun SampleReverseLayout() {
-    FVerticalWheelPicker(
+    VerticalWheelPicker(
         modifier = Modifier.width(60.dp),
         count = 50,
         // Reverse layout.

@@ -30,29 +30,29 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 
 @Stable
-interface FWheelPickerContentScope {
-    val state: FWheelPickerState
+interface WheelPickerContentScope {
+    val state: WheelPickerState
 }
 
 @Stable
-interface FWheelPickerDisplayScope : FWheelPickerContentScope {
+interface WheelPickerDisplayScope : WheelPickerContentScope {
     @Composable
     fun Content(index: Int)
 }
 
 @Composable
-fun FVerticalWheelPicker(
+fun VerticalWheelPicker(
     modifier: Modifier = Modifier,
     count: Int,
-    state: FWheelPickerState = rememberFWheelPickerState(),
+    state: WheelPickerState = rememberWheelPickerState(),
     key: ((index: Int) -> Any)? = null,
     itemHeight: Dp = 35.dp,
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    focus: @Composable () -> Unit = { FWheelPickerFocusVertical() },
-    display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
-    content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
+    focus: @Composable () -> Unit = { WheelPickerFocusVertical() },
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
+    content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
     WheelPicker(
         modifier = modifier,
@@ -71,18 +71,18 @@ fun FVerticalWheelPicker(
 }
 
 @Composable
-fun FHorizontalWheelPicker(
+fun HorizontalWheelPicker(
     modifier: Modifier = Modifier,
     count: Int,
-    state: FWheelPickerState = rememberFWheelPickerState(),
+    state: WheelPickerState = rememberWheelPickerState(),
     key: ((index: Int) -> Any)? = null,
     itemWidth: Dp = 35.dp,
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    focus: @Composable () -> Unit = { FWheelPickerFocusHorizontal() },
-    display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
-    content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
+    focus: @Composable () -> Unit = { WheelPickerFocusHorizontal() },
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
+    content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
     WheelPicker(
         modifier = modifier,
@@ -105,15 +105,15 @@ private fun WheelPicker(
     modifier: Modifier,
     isVertical: Boolean,
     count: Int,
-    state: FWheelPickerState,
+    state: WheelPickerState,
     key: ((index: Int) -> Any)?,
     itemSize: Dp,
     unfocusedCount: Int,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
     focus: @Composable () -> Unit,
-    display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit,
-    content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
+    display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit,
+    content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
     require(count >= 0) { "require count >= 0" }
     require(unfocusedCount >= 0) { "require unfocusedCount >= 0" }
@@ -135,7 +135,7 @@ private fun WheelPicker(
     }
 
     val displayScope = remember(state) {
-        FWheelPickerDisplayScopeImpl(state)
+        WheelPickerDisplayScopeImpl(state)
     }.apply {
         this.content = content
     }
@@ -243,7 +243,7 @@ private fun ItemSizeBox(
 }
 
 private class WheelPickerNestedScrollConnection(
-    private val state: FWheelPickerState,
+    private val state: WheelPickerState,
 ) : NestedScrollConnection {
     var isVertical: Boolean = true
     var itemSizePx: Int = 0
@@ -290,11 +290,11 @@ private fun Velocity.flingItemCount(
 }
 
 @Stable
-private class FWheelPickerDisplayScopeImpl(
-    override val state: FWheelPickerState,
-) : FWheelPickerDisplayScope {
+private class WheelPickerDisplayScopeImpl(
+    override val state: WheelPickerState,
+) : WheelPickerDisplayScope {
 
-    var content: @Composable FWheelPickerContentScope.(index: Int) -> Unit by mutableStateOf({})
+    var content: @Composable WheelPickerContentScope.(index: Int) -> Unit by mutableStateOf({})
 
     @Composable
     override fun Content(index: Int) {

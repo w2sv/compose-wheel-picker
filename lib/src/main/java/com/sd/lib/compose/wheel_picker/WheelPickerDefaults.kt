@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.Dp
  * The default implementation of focus view in vertical.
  */
 @Composable
-fun FWheelPickerFocusVertical(
+fun WheelPickerFocusVertical(
     modifier: Modifier = Modifier,
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
@@ -47,7 +47,7 @@ fun FWheelPickerFocusVertical(
  * The default implementation of focus view in horizontal.
  */
 @Composable
-fun FWheelPickerFocusHorizontal(
+fun WheelPickerFocusHorizontal(
     modifier: Modifier = Modifier,
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
@@ -74,7 +74,7 @@ fun FWheelPickerFocusHorizontal(
  * Default display.
  */
 @Composable
-fun FWheelPickerDisplayScope.DefaultWheelPickerDisplay(
+fun WheelPickerDisplayScope.DefaultWheelPickerDisplay(
     index: Int,
     modifier: Modifier = Modifier
 ) {

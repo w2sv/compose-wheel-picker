@@ -18,18 +18,18 @@ import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
 
 @Composable
-fun rememberFWheelPickerState(
+fun rememberWheelPickerState(
     initialIndex: Int = 0
-): FWheelPickerState {
-    return rememberSaveable(saver = FWheelPickerState.Saver) {
-        FWheelPickerState(
+): WheelPickerState {
+    return rememberSaveable(saver = WheelPickerState.Saver) {
+        WheelPickerState(
             initialIndex = initialIndex,
         )
     }
 }
 
 @Stable
-class FWheelPickerState(
+class WheelPickerState(
     initialIndex: Int = 0,
 ) {
     internal val lazyListState = LazyListState()
@@ -187,14 +187,14 @@ class FWheelPickerState(
     }
 
     companion object {
-        val Saver: Saver<FWheelPickerState, *> = listSaver(
+        val Saver: Saver<WheelPickerState, *> = listSaver(
             save = {
                 listOf<Any>(
                     it.currentIndex,
                 )
             },
             restore = {
-                FWheelPickerState(
+                WheelPickerState(
                     initialIndex = it[0] as Int,
                 )
             }
