@@ -1,22 +1,20 @@
 package com.sd.lib.compose.wheel_picker
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 /**
  * The default implementation of focus view in vertical.
@@ -24,25 +22,23 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FWheelPickerFocusVertical(
     modifier: Modifier = Modifier,
-    dividerSize: Dp = 1.dp,
-    dividerColor: Color = DefaultDividerColor,
+    dividerThickness: Dp = DividerDefaults.Thickness,
+    dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(
+    Box(modifier = modifier) {
+        VerticalDivider(
+            thickness = dividerThickness,
+            color = dividerColor,
             modifier = Modifier
-                .background(dividerColor)
-                .height(dividerSize)
                 .fillMaxWidth()
-                .align(Alignment.TopCenter),
+                .align(Alignment.TopCenter)
         )
-        Box(
+        VerticalDivider(
+            thickness = dividerThickness,
+            color = dividerColor,
             modifier = Modifier
-                .background(dividerColor)
-                .height(dividerSize)
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter),
+                .align(Alignment.BottomCenter)
         )
     }
 }
@@ -53,38 +49,26 @@ fun FWheelPickerFocusVertical(
 @Composable
 fun FWheelPickerFocusHorizontal(
     modifier: Modifier = Modifier,
-    dividerSize: Dp = 1.dp,
-    dividerColor: Color = DefaultDividerColor,
+    dividerThickness: Dp = DividerDefaults.Thickness,
+    dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(
+    Box(modifier = modifier) {
+        HorizontalDivider(
+            thickness = dividerThickness,
+            color = dividerColor,
             modifier = Modifier
-                .background(dividerColor)
-                .width(dividerSize)
                 .fillMaxHeight()
-                .align(Alignment.CenterStart),
+                .align(Alignment.TopCenter)
         )
-        Box(
+        HorizontalDivider(
+            thickness = dividerThickness,
+            color = dividerColor,
             modifier = Modifier
-                .background(dividerColor)
-                .width(dividerSize)
                 .fillMaxHeight()
-                .align(Alignment.CenterEnd),
+                .align(Alignment.BottomCenter)
         )
     }
 }
-
-/**
- * Default divider color.
- */
-private val DefaultDividerColor: Color
-    @Composable
-    get() {
-        val color = if (isSystemInDarkTheme()) Color.White else Color.Black
-        return color.copy(alpha = 0.2f)
-    }
 
 /**
  * Default display.
@@ -95,8 +79,12 @@ fun FWheelPickerDisplayScope.DefaultWheelPickerDisplay(
     modifier: Modifier = Modifier
 ) {
     val focused = index == state.currentIndexSnapshot
-    val targetScale = if (focused) 1.0f else 0.8f
-    val animateScale by animateFloatAsState(targetScale, label = "")
+    val animateScale by animateFloatAsState(
+        remember(focused) {
+            if (focused) 1.0f else 0.8f
+        },
+        label = ""
+    )
     Box(
         modifier = modifier.graphicsLayer {
             this.alpha = if (focused) 1.0f else 0.3f

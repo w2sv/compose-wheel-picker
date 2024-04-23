@@ -96,7 +96,7 @@ private fun SampleCustomDivider() {
         count = 50,
         focus = {
             // Custom divider.
-            FWheelPickerFocusVertical(dividerColor = Color.Red, dividerSize = 2.dp)
+            FWheelPickerFocusVertical(dividerColor = Color.Red, dividerThickness = 2.dp)
         },
     ) {
         Text(it.toString())
