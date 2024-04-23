@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.sd.demo.wheel_picker.ui.theme.AppTheme
 import com.sd.lib.compose.wheel_picker.VerticalWheelPicker
@@ -47,7 +48,7 @@ private fun MainView() {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.Center
     ) {
         SampleDefault()
     }
@@ -59,7 +60,6 @@ private fun SampleDefault() {
         modifier = Modifier.width(60.dp),
         // Specified item count.
         count = 50,
-        debug = true,
     ) { index ->
         Text(index.toString())
     }
@@ -71,7 +71,7 @@ fun SampleCustomItemSize() {
         modifier = Modifier.width(60.dp),
         count = 50,
         // Specified item height.
-        itemHeight = 60.dp,
+        itemSize = DpSize(60.dp, 60.dp),
     ) {
         Text(it.toString())
     }
@@ -136,7 +136,6 @@ private fun SampleScrollToIndex() {
         count = 50,
         // state
         state = state,
-        debug = true,
     ) {
         Text(it.toString())
     }

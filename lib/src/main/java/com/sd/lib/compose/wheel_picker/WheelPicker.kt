@@ -23,6 +23,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 
@@ -43,11 +44,11 @@ fun VerticalWheelPicker(
     count: Int,
     state: WheelPickerState = rememberWheelPickerState(),
     key: ((index: Int) -> Any)? = null,
-    itemHeight: Dp = 35.dp,
+    itemSize: DpSize = WheelPickerDefaults.itemSize,
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    focus: @Composable () -> Unit = { WheelPickerFocusVertical() },
+    focus: @Composable () -> Unit = { WheelPickerFocusVertical(modifier = Modifier.width(itemSize.width)) },
     display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = {
         DefaultWheelPickerDisplay(
             it
@@ -61,7 +62,7 @@ fun VerticalWheelPicker(
         count = count,
         state = state,
         key = key,
-        itemSize = itemHeight,
+        itemSize = itemSize,
         unfocusedCount = unfocusedCount,
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
@@ -77,11 +78,11 @@ fun HorizontalWheelPicker(
     count: Int,
     state: WheelPickerState = rememberWheelPickerState(),
     key: ((index: Int) -> Any)? = null,
-    itemWidth: Dp = 35.dp,
+    itemSize: DpSize = WheelPickerDefaults.itemSize,
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    focus: @Composable () -> Unit = { WheelPickerFocusHorizontal() },
+    focus: @Composable () -> Unit = { WheelPickerFocusHorizontal(modifier = Modifier.height(itemSize.height)) },
     display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit = {
         DefaultWheelPickerDisplay(
             it
@@ -95,7 +96,7 @@ fun HorizontalWheelPicker(
         count = count,
         state = state,
         key = key,
-        itemSize = itemWidth,
+        itemSize = itemSize,
         unfocusedCount = unfocusedCount,
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
@@ -105,6 +106,12 @@ fun HorizontalWheelPicker(
     )
 }
 
+private fun DpSize.mainAxis(verticalLayout: Boolean): Dp =
+    if (verticalLayout) height else width
+
+private fun DpSize.crossAxis(verticalLayout: Boolean): Dp =
+    if (verticalLayout) width else height
+
 @Composable
 private fun WheelPicker(
     modifier: Modifier,
@@ -112,7 +119,7 @@ private fun WheelPicker(
     count: Int,
     state: WheelPickerState,
     key: ((index: Int) -> Any)?,
-    itemSize: Dp,
+    itemSize: DpSize,
     unfocusedCount: Int,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
@@ -129,16 +136,23 @@ private fun WheelPicker(
         state.updateCount(count)
     }
 
+    val mainAxisSize = remember(itemSize, isVertical) {
+        itemSize.mainAxis(isVertical)
+    }
+    val crossAxisSize = remember(itemSize, isVertical) {
+        itemSize.crossAxis(isVertical)
+    }
+
     val nestedScrollConnection = remember(state) {
         WheelPickerNestedScrollConnection(state)
     }.apply {
         this.isVertical = isVertical
-        this.itemSizePx = with(LocalDensity.current) { itemSize.roundToPx() }
+        this.itemSizePx = with(LocalDensity.current) { mainAxisSize.roundToPx() }
         this.reverseLayout = reverseLayout
     }
 
-    val totalSize = remember(itemSize, unfocusedCount) {
-        itemSize * (unfocusedCount * 2 + 1)
+    val totalSize = remember(mainAxisSize, unfocusedCount) {
+        mainAxisSize * (unfocusedCount * 2 + 1)
     }
 
     val displayScope = remember(state) {
@@ -151,9 +165,9 @@ private fun WheelPicker(
             .run {
                 if (totalSize > 0.dp) {
                     if (isVertical) {
-                        height(totalSize).widthIn(40.dp)
+                        height(totalSize).widthIn(crossAxisSize)
                     } else {
-                        width(totalSize).heightIn(40.dp)
+                        width(totalSize).heightIn(crossAxisSize)
                     }
                 } else {
                     this
@@ -165,7 +179,7 @@ private fun WheelPicker(
             unfocusedCount = unfocusedCount,
             count = count,
             isVertical = isVertical,
-            itemSize = itemSize,
+            mainAxisSize = mainAxisSize,
             displayScope = displayScope,
             key = key,
             display = display
@@ -194,7 +208,7 @@ private fun WheelPicker(
         ItemSizedBox(
             modifier = Modifier.align(Alignment.Center),
             isVertical = isVertical,
-            itemSize = itemSize,
+            mainAxisSize = mainAxisSize,
         ) {
             focus()
         }
@@ -206,40 +220,22 @@ private fun rememberLazyListContent(
     unfocusedCount: Int,
     count: Int,
     isVertical: Boolean,
-    itemSize: Dp,
+    mainAxisSize: Dp,
     displayScope: WheelPickerDisplayScope,
     key: ((index: Int) -> Any)?,
     display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit,
 ): LazyListScope.() -> Unit {
-    return remember(unfocusedCount, count, isVertical, itemSize, displayScope, key) {
+    return remember(unfocusedCount, count, isVertical, mainAxisSize, displayScope, key) {
         {
-            repeat(unfocusedCount) {
-                item(contentType = "placeholder") {
-                    ItemSizedBox(
-                        isVertical = isVertical,
-                        itemSize = itemSize,
-                    )
-                }
-            }
-
             items(
                 count = count,
                 key = key,
             ) { index ->
                 ItemSizedBox(
                     isVertical = isVertical,
-                    itemSize = itemSize,
+                    mainAxisSize = mainAxisSize,
                 ) {
                     displayScope.display(index)
-                }
-            }
-
-            repeat(unfocusedCount) {
-                item(contentType = "placeholder") {
-                    ItemSizedBox(
-                        isVertical = isVertical,
-                        itemSize = itemSize,
-                    )
                 }
             }
         }
@@ -250,16 +246,16 @@ private fun rememberLazyListContent(
 private fun ItemSizedBox(
     modifier: Modifier = Modifier,
     isVertical: Boolean,
-    itemSize: Dp,
+    mainAxisSize: Dp,
     content: @Composable () -> Unit = {},
 ) {
     Box(
         modifier
             .run {
                 if (isVertical) {
-                    height(itemSize)
+                    height(mainAxisSize)
                 } else {
-                    width(itemSize)
+                    width(mainAxisSize)
                 }
             },
         contentAlignment = Alignment.Center,

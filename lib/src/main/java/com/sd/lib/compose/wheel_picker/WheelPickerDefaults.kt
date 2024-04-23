@@ -2,8 +2,7 @@ package com.sd.lib.compose.wheel_picker
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.VerticalDivider
@@ -15,6 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+
+object WheelPickerDefaults {
+    internal val itemSize: DpSize = DpSize(35.dp, 35.dp)
+}
 
 /**
  * The default implementation of focus view in vertical.
@@ -25,19 +30,17 @@ fun WheelPickerFocusVertical(
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(modifier = modifier) {
-        VerticalDivider(
+    Box(modifier = modifier.fillMaxSize()) {
+        HorizontalDivider(
             thickness = dividerThickness,
             color = dividerColor,
             modifier = Modifier
-                .fillMaxWidth()
                 .align(Alignment.TopCenter)
         )
-        VerticalDivider(
+        HorizontalDivider(
             thickness = dividerThickness,
             color = dividerColor,
             modifier = Modifier
-                .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         )
     }
@@ -52,19 +55,17 @@ fun WheelPickerFocusHorizontal(
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(modifier = modifier) {
-        HorizontalDivider(
+    Box(modifier = modifier.fillMaxSize()) {
+        VerticalDivider(
             thickness = dividerThickness,
             color = dividerColor,
             modifier = Modifier
-                .fillMaxHeight()
                 .align(Alignment.TopCenter)
         )
-        HorizontalDivider(
+        VerticalDivider(
             thickness = dividerThickness,
             color = dividerColor,
             modifier = Modifier
-                .fillMaxHeight()
                 .align(Alignment.BottomCenter)
         )
     }
