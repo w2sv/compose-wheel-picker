@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,10 +30,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 
+@Stable
 interface FWheelPickerContentScope {
     val state: FWheelPickerState
 }
 
+@Stable
 interface FWheelPickerDisplayScope : FWheelPickerContentScope {
     @Composable
     fun Content(index: Int)
@@ -293,6 +296,7 @@ private fun Velocity.flingItemCount(
     return if (reverseLayout) -flingItemCount else flingItemCount
 }
 
+@Stable
 private class FWheelPickerDisplayScopeImpl(
     override val state: FWheelPickerState,
 ) : FWheelPickerDisplayScope {

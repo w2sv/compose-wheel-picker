@@ -4,6 +4,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -26,6 +27,7 @@ fun rememberFWheelPickerState(
     }
 }
 
+@Stable
 class FWheelPickerState(
     initialIndex: Int = 0,
 ) {
