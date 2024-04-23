@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -8,7 +8,7 @@ android {
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     defaultConfig {
         targetSdk = libs.versions.androidCompileSdk.get().toInt()
-        minSdk = 21
+        minSdk = libs.versions.androidMinSdk.get().toInt()
         applicationId = "com.sd.demo.compose.wheel_picker"
         versionCode = 1
         versionName = "1.0"
@@ -35,7 +35,7 @@ android {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(libs.versions.java.get().toInt())
 }
 
 dependencies {

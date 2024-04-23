@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     `maven-publish`
 }
 
@@ -12,7 +12,7 @@ android {
     namespace = "com.sd.lib.compose.wheel_picker"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.androidMinSdk.get().toInt()
     }
 
     kotlinOptions {
@@ -34,7 +34,7 @@ android {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(libs.versions.java.get().toInt())
 }
 
 dependencies {
