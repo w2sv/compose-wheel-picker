@@ -115,8 +115,10 @@ private fun WheelPicker(
     display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit,
     content: @Composable WheelPickerContentScope.(index: Int) -> Unit,
 ) {
-    require(count >= 0) { "require count >= 0" }
-    require(unfocusedCount >= 0) { "require unfocusedCount >= 0" }
+    LaunchedEffect(count, unfocusedCount) {
+        require(count >= 0) { "require count >= 0" }
+        require(unfocusedCount >= 0) { "require unfocusedCount >= 0" }
+    }
 
     LaunchedEffect(state, count) {
         state.updateCount(count)
@@ -156,9 +158,7 @@ private fun WheelPicker(
             },
         contentAlignment = Alignment.Center,
     ) {
-
         val lazyListScope: LazyListScope.() -> Unit = {
-
             repeat(unfocusedCount) {
                 item(contentType = "placeholder") {
                     ItemSizeBox(
