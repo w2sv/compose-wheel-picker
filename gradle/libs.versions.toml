@@ -24,6 +24,8 @@ androidx-activity-compose = "androidx.activity:activity-compose:1.9.0"
 androidx-lifecycle-viewmodelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
+slimber = "com.github.PaulWoitaschek:Slimber:2.0.0"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }

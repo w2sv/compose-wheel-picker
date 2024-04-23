@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.suspendCancellableCoroutine
+import slimber.log.i
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
@@ -31,7 +32,6 @@ fun rememberFWheelPickerState(
 class FWheelPickerState(
     initialIndex: Int = 0,
 ) {
-    internal var debug = false
     internal val lazyListState = LazyListState()
 
     private var _count = 0
@@ -40,7 +40,7 @@ class FWheelPickerState(
 
     private var _pendingIndex: Int? = initialIndex.coerceAtLeast(0)
         set(value) {
-            logMsg(debug) { "pendingIndex:$value" }
+            i { "pendingIndex:$value" }
             field = value?.also {
                 check(it >= 0)
                 check(_count == 0)
@@ -75,7 +75,7 @@ class FWheelPickerState(
     val isScrollInProgress: Boolean get() = lazyListState.isScrollInProgress
 
     suspend fun animateScrollToIndex(index: Int) {
-        logMsg(debug) { "animateScrollToIndex index:$index count:$_count" }
+        i { "animateScrollToIndex index:$index count:$_count" }
         @Suppress("NAME_SHADOWING")
         val index = index.coerceAtLeast(0)
 
@@ -84,7 +84,7 @@ class FWheelPickerState(
     }
 
     suspend fun scrollToIndex(index: Int, pending: Boolean = true) {
-        logMsg(debug) { "scrollToIndex index:$index pending:$pending count:$_count" }
+        i { "scrollToIndex index:$index pending:$pending count:$_count" }
         @Suppress("NAME_SHADOWING")
         val index = index.coerceAtLeast(0)
 
@@ -101,7 +101,7 @@ class FWheelPickerState(
         if (_count > 0) return
         if (_currentIndex == index) return
 
-        logMsg(debug) { "awaitIndex:$index start" }
+        i { "awaitIndex:$index start" }
 
         // Resume last continuation before suspend.
         resumeAwaitIndex()
@@ -110,25 +110,25 @@ class FWheelPickerState(
             _pendingIndex = index
             _pendingIndexContinuation = cont
             cont.invokeOnCancellation {
-                logMsg(debug) { "awaitIndex:$index canceled" }
+                i { "awaitIndex:$index canceled" }
                 _pendingIndex = null
                 _pendingIndexContinuation = null
             }
         }
 
-        logMsg(debug) { "awaitIndex:$index finish" }
+        i { "awaitIndex:$index finish" }
     }
 
     private fun resumeAwaitIndex() {
         _pendingIndexContinuation?.let {
-            logMsg(debug) { "resumeAwaitIndex pendingIndex:$_pendingIndex" }
+            i { "resumeAwaitIndex pendingIndex:$_pendingIndex" }
             _pendingIndexContinuation = null
             it.resume(Unit)
         }
     }
 
     internal suspend fun updateCount(count: Int) {
-        logMsg(debug) { "updateCount count:$count currentIndex:$_currentIndex" }
+        i { "updateCount count:$count currentIndex:$_currentIndex" }
 
         _count = count
 
@@ -139,7 +139,7 @@ class FWheelPickerState(
 
         if (count > 0) {
             _pendingIndex?.let { pendingIndex ->
-                logMsg(debug) { "found pendingIndex:$pendingIndex" }
+                i { "found pendingIndex:$pendingIndex" }
                 scrollToIndex(pendingIndex, pending = false)
                 _pendingIndex = null
                 resumeAwaitIndex()
@@ -153,7 +153,7 @@ class FWheelPickerState(
     private fun synchronizeCurrentIndex() {
         val index = synchronizeCurrentIndexSnapshot().coerceAtLeast(-1)
         if (_currentIndex != index) {
-            logMsg(debug) { "setCurrentIndex:$index" }
+            i { "setCurrentIndex:$index" }
             _currentIndex = index
             _currentIndexSnapshot = index
         }

@@ -1,6 +1,5 @@
 package com.sd.lib.compose.wheel_picker
 
-import android.util.Log
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
@@ -51,7 +50,6 @@ fun FVerticalWheelPicker(
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    debug: Boolean = false,
     focus: @Composable () -> Unit = { FWheelPickerFocusVertical() },
     display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
     content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
@@ -66,7 +64,6 @@ fun FVerticalWheelPicker(
         unfocusedCount = unfocusedCount,
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
-        debug = debug,
         focus = focus,
         display = display,
         content = content,
@@ -83,7 +80,6 @@ fun FHorizontalWheelPicker(
     unfocusedCount: Int = 1,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    debug: Boolean = false,
     focus: @Composable () -> Unit = { FWheelPickerFocusHorizontal() },
     display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit = { DefaultWheelPickerDisplay(it) },
     content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
@@ -98,7 +94,6 @@ fun FHorizontalWheelPicker(
         unfocusedCount = unfocusedCount,
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
-        debug = debug,
         focus = focus,
         display = display,
         content = content,
@@ -116,7 +111,6 @@ private fun WheelPicker(
     unfocusedCount: Int,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
-    debug: Boolean,
     focus: @Composable () -> Unit,
     display: @Composable FWheelPickerDisplayScope.(index: Int) -> Unit,
     content: @Composable FWheelPickerContentScope.(index: Int) -> Unit,
@@ -124,7 +118,6 @@ private fun WheelPicker(
     require(count >= 0) { "require count >= 0" }
     require(unfocusedCount >= 0) { "require unfocusedCount >= 0" }
 
-    state.debug = debug
     LaunchedEffect(state, count) {
         state.updateCount(count)
     }
@@ -306,11 +299,5 @@ private class FWheelPickerDisplayScopeImpl(
     @Composable
     override fun Content(index: Int) {
         content(index)
-    }
-}
-
-internal inline fun logMsg(debug: Boolean, block: () -> String) {
-    if (debug) {
-        Log.i("FWheelPicker", block())
     }
 }

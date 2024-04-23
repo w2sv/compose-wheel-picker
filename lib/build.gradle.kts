@@ -39,6 +39,7 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.slimber)
 }
 
 publishing {
