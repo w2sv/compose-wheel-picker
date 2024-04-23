@@ -92,12 +92,13 @@ private val DefaultDividerColor: Color
 @Composable
 fun FWheelPickerDisplayScope.DefaultWheelPickerDisplay(
     index: Int,
+    modifier: Modifier = Modifier
 ) {
     val focused = index == state.currentIndexSnapshot
     val targetScale = if (focused) 1.0f else 0.8f
     val animateScale by animateFloatAsState(targetScale, label = "")
     Box(
-        modifier = Modifier.graphicsLayer {
+        modifier = modifier.graphicsLayer {
             this.alpha = if (focused) 1.0f else 0.3f
             this.scaleX = animateScale
             this.scaleY = animateScale
