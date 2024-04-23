@@ -175,11 +175,18 @@ private fun WheelPicker(
             },
         contentAlignment = Alignment.Center,
     ) {
+        val itemBoxModifier = Modifier.run {
+            if (isVertical) {
+                height(mainAxisSize)
+            } else {
+                width(mainAxisSize)
+            }
+        }
+
         val lazyListContent = rememberLazyListContent(
             unfocusedCount = unfocusedCount,
             count = count,
-            isVertical = isVertical,
-            mainAxisSize = mainAxisSize,
+            itemBoxModifier = itemBoxModifier,
             displayScope = displayScope,
             key = key,
             display = display
@@ -206,9 +213,7 @@ private fun WheelPicker(
         }
 
         ItemSizedBox(
-            modifier = Modifier.align(Alignment.Center),
-            isVertical = isVertical,
-            mainAxisSize = mainAxisSize,
+            modifier = itemBoxModifier
         ) {
             focus()
         }
@@ -219,21 +224,19 @@ private fun WheelPicker(
 private fun rememberLazyListContent(
     unfocusedCount: Int,
     count: Int,
-    isVertical: Boolean,
-    mainAxisSize: Dp,
     displayScope: WheelPickerDisplayScope,
     key: ((index: Int) -> Any)?,
+    itemBoxModifier: Modifier,
     display: @Composable WheelPickerDisplayScope.(index: Int) -> Unit,
 ): LazyListScope.() -> Unit {
-    return remember(unfocusedCount, count, isVertical, mainAxisSize, displayScope, key) {
+    return remember(unfocusedCount, count, displayScope, key, itemBoxModifier) {
         {
             items(
                 count = count,
                 key = key,
             ) { index ->
                 ItemSizedBox(
-                    isVertical = isVertical,
-                    mainAxisSize = mainAxisSize,
+                    modifier = itemBoxModifier
                 ) {
                     displayScope.display(index)
                 }
@@ -245,19 +248,10 @@ private fun rememberLazyListContent(
 @Composable
 private fun ItemSizedBox(
     modifier: Modifier = Modifier,
-    isVertical: Boolean,
-    mainAxisSize: Dp,
     content: @Composable () -> Unit = {},
 ) {
     Box(
-        modifier
-            .run {
-                if (isVertical) {
-                    height(mainAxisSize)
-                } else {
-                    width(mainAxisSize)
-                }
-            },
+        modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
         content()
