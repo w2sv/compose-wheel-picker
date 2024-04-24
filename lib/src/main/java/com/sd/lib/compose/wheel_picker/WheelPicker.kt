@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
@@ -45,7 +44,11 @@ fun VerticalWheelPicker(
         unfocusedItemCount = unfocusedItemCount,
         onIndexSnap = onIndexSnap,
         isVertical = true,
-        itemSize = itemSize,
+        size = rememberWheelPickerSize(
+            itemSize = itemSize,
+            unfocusedItemCount = unfocusedItemCount,
+            verticalLayout = true
+        ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
         focus = focus,
@@ -73,19 +76,17 @@ fun HorizontalWheelPicker(
         startIndex = startIndex,
         onIndexSnap = onIndexSnap,
         isVertical = false,
-        itemSize = itemSize,
+        size = rememberWheelPickerSize(
+            itemSize = itemSize,
+            unfocusedItemCount = unfocusedItemCount,
+            verticalLayout = false
+        ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
         focus = focus,
         content = content,
     )
 }
-
-private fun DpSize.mainAxis(verticalLayout: Boolean): Dp =
-    if (verticalLayout) height else width
-
-private fun DpSize.crossAxis(verticalLayout: Boolean): Dp =
-    if (verticalLayout) width else height
 
 private const val MAX_INT_VALUE_HALVE = 1073741824
 
@@ -98,7 +99,7 @@ private fun WheelPicker(
     @IntRange(from = 0) startIndex: Int = 0,
     @IntRange(from = 0) unfocusedItemCount: Int = 1,
     isVertical: Boolean,
-    itemSize: DpSize,
+    size: WheelPickerSize,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
     focus: @Composable () -> Unit,
@@ -131,25 +132,14 @@ private fun WheelPicker(
         }
     }
 
-    val mainAxisSize = remember(itemSize, isVertical) {
-        itemSize.mainAxis(isVertical)
-    }
-    val crossAxisSize = remember(itemSize, isVertical) {
-        itemSize.crossAxis(isVertical)
-    }
-
-    val totalSize = remember(mainAxisSize, unfocusedItemCount) {
-        mainAxisSize * (unfocusedItemCount * 2 + 1)
-    }
-
     Box(
         modifier = modifier
             .run {
-                if (totalSize > 0.dp) {
+                if (size.mainAxis > 0.dp) {
                     if (isVertical) {
-                        height(totalSize).widthIn(crossAxisSize)
+                        height(size.mainAxis).widthIn(size.crossAxis)
                     } else {
-                        width(totalSize).heightIn(crossAxisSize)
+                        width(size.mainAxis).heightIn(size.crossAxis)
                     }
                 } else {
                     this
@@ -159,9 +149,9 @@ private fun WheelPicker(
     ) {
         val itemBoxModifier = Modifier.run {
             if (isVertical) {
-                height(mainAxisSize)
+                height(size.itemBoxMainAxis)
             } else {
-                width(mainAxisSize)
+                width(size.itemBoxMainAxis)
             }
         }
 
