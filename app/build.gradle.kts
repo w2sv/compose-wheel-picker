@@ -51,5 +51,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodelCompose)
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
+    implementation(libs.slimber)
+
     implementation(project(":lib"))
 }
