@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sd.demo.wheel_picker.ui.theme.AppTheme
 import com.sd.lib.compose.wheel_picker.VerticalWheelPicker
+import com.sd.lib.compose.wheel_picker.WheelPickerDefaults
+import com.sd.lib.compose.wheel_picker.rememberWheelPickerState
 import slimber.log.i
 
 class MainActivity : ComponentActivity() {
@@ -42,17 +45,23 @@ private fun MainView() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        VerticalWheelPicker(
+        val state = rememberWheelPickerState(
             itemCount = 50,
             startIndex = 25,
-            unfocusedItemCount = 3,
-            onIndexSnap = {
-                i { "Snapped index $it" }
-            },
-            itemSize = DpSize(56.dp, 56.dp),
-            snapAnimationSpec = remember {
-                spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow)
+            unfocusedItemCountToEitherSide = 3
+        )
+            .apply {
+                LaunchedEffect(snappedIndex) {
+                    i { "Snapped index: $snappedIndex" }
+                }
             }
+
+        VerticalWheelPicker(
+            state = state,
+            itemSize = DpSize(56.dp, 56.dp),
+            snapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(
+                snap = remember { spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow) }
+            )
         ) { index ->
             Text(index.toString(), fontSize = 18.sp)
         }

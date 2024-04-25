@@ -1,30 +1,17 @@
 package com.sd.lib.compose.wheel_picker
 
-import androidx.annotation.IntRange
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,135 +23,76 @@ import kotlin.math.abs
 
 @Composable
 fun VerticalWheelPicker(
-    @IntRange(from = 0) itemCount: Int,
+    state: WheelPickerState,
     modifier: Modifier = Modifier,
-    @IntRange(from = 0) startIndex: Int = 0,
-    @IntRange(from = 0) unfocusedItemCount: Int = 1,
-    onIndexSnap: (Int) -> Unit = {},
     itemSize: DpSize = WheelPickerDefaults.itemSize,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    lowVelocityApproachAnimationSpec: AnimationSpec<Float> = remember { tween(easing = LinearEasing) },
-    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
-    snapAnimationSpec: AnimationSpec<Float> = remember { spring(stiffness = Spring.StiffnessMediumLow) },
-    focus: @Composable () -> Unit = { WheelPickerFocusVertical(modifier = Modifier.width(itemSize.width)) },
+    snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
+    focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusVertical(modifier = it) },
     content: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
-        itemCount = itemCount,
+        state = state,
         modifier = modifier,
-        startIndex = startIndex,
-        unfocusedItemCount = unfocusedItemCount,
-        onIndexSnap = onIndexSnap,
         isVertical = true,
         size = rememberWheelPickerSize(
             itemSize = itemSize,
-            unfocusedItemCount = unfocusedItemCount,
+            visibleItemCount = state.visibleItemCount,
             verticalLayout = true
         ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
-        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
-        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
-        snapAnimationSpec = snapAnimationSpec,
-        focus = focus,
+        snapFlingBehaviorAnimationSpecs = snapFlingBehaviorAnimationSpecs,
+        focusBoxOverlay = focusBoxOverlay,
         content = content,
     )
 }
 
 @Composable
 fun HorizontalWheelPicker(
-    @IntRange(from = 0) itemCount: Int,
+    state: WheelPickerState,
     modifier: Modifier = Modifier,
-    @IntRange(from = 0) startIndex: Int = 0,
-    @IntRange(from = 0) unfocusedItemCount: Int = 1,
-    onIndexSnap: (Int) -> Unit = {},
     itemSize: DpSize = WheelPickerDefaults.itemSize,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    lowVelocityApproachAnimationSpec: AnimationSpec<Float> = remember { tween(easing = LinearEasing) },
-    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
-    snapAnimationSpec: AnimationSpec<Float> = remember { spring(stiffness = Spring.StiffnessMediumLow) },
-    focus: @Composable () -> Unit = { WheelPickerFocusHorizontal(modifier = Modifier.height(itemSize.height)) },
+    snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
+    focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusHorizontal(modifier = it) },
     content: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
-        itemCount = itemCount,
+        state = state,
         modifier = modifier,
-        unfocusedItemCount = unfocusedItemCount,
-        startIndex = startIndex,
-        onIndexSnap = onIndexSnap,
         isVertical = false,
         size = rememberWheelPickerSize(
             itemSize = itemSize,
-            unfocusedItemCount = unfocusedItemCount,
+            visibleItemCount = state.visibleItemCount,
             verticalLayout = false
         ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
-        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
-        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
-        snapAnimationSpec = snapAnimationSpec,
-        focus = focus,
+        snapFlingBehaviorAnimationSpecs = snapFlingBehaviorAnimationSpecs,
+        focusBoxOverlay = focusBoxOverlay,
         content = content,
     )
 }
 
-private const val MAX_INT_VALUE_HALVE = 1073741824
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun WheelPicker(
-    @IntRange(from = 0) itemCount: Int,
-    onIndexSnap: (Int) -> Unit,
+    state: WheelPickerState,
     modifier: Modifier = Modifier,
-    @IntRange(from = 0) startIndex: Int = 0,
-    @IntRange(from = 0) unfocusedItemCount: Int = 1,
     isVertical: Boolean,
     size: WheelPickerSize,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
-    lowVelocityApproachAnimationSpec: AnimationSpec<Float>,
-    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float>,
-    snapAnimationSpec: AnimationSpec<Float>,
-    focus: @Composable () -> Unit,
+    snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs,
+    focusBoxOverlay: @Composable (Modifier) -> Unit,
     content: @Composable (index: Int) -> Unit,
 ) {
-    LaunchedEffect(unfocusedItemCount, itemCount) {
-        require(itemCount >= 0) { "itemCount >= 0 required" }
-        require(unfocusedItemCount >= 0) { "unfocusedCount >= 0 required" }
-    }
-
-    val totalItems = remember(unfocusedItemCount) {
-        unfocusedItemCount + 2 + 1
-    }
-
-    val lazyListState = rememberLazyListState()
-    val snapFlingBehavior = rememberSnapFlingBehavior(
-        lazyListState = lazyListState,
-        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
-        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
-        snapAnimationSpec = snapAnimationSpec
-    )
-
-    val firstVisibleItemIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
-    val isScrollInProgress = lazyListState.isScrollInProgress
-
-    val itemBoxMainAxisPx by remember { derivedStateOf { lazyListState.layoutInfo.mainAxisItemSpacing } }
-
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { lazyListState.firstVisibleItemScrollOffset } }
-
-    // Scroll to start index
-    LaunchedEffect(startIndex) {
-        val offsetZeroIndex = MAX_INT_VALUE_HALVE - MAX_INT_VALUE_HALVE % itemCount
-        lazyListState.scrollToItem(offsetZeroIndex + startIndex - unfocusedItemCount)
-    }
-
-    // Invoke onIndexSnap on snap
-    LaunchedEffect(isScrollInProgress) {
-        if (!isScrollInProgress) {
-            onIndexSnap(firstVisibleItemIndex % itemCount + unfocusedItemCount)
-        }
+    val itemBoxMainAxisPx = with(LocalDensity.current) { size.itemBoxMainAxis.toPx() }
+    LaunchedEffect(state, itemBoxMainAxisPx) {
+        state.itemBoxMainAxisPx = itemBoxMainAxisPx
     }
 
     Box(
@@ -172,9 +100,9 @@ private fun WheelPicker(
             .run {
                 if (size.mainAxis > 0.dp) {
                     if (isVertical) {
-                        height(size.mainAxis).widthIn(size.crossAxis)
+                        height(size.mainAxis).width(size.crossAxis)
                     } else {
-                        width(size.mainAxis).heightIn(size.crossAxis)
+                        width(size.mainAxis).height(size.crossAxis)
                     }
                 } else {
                     this
@@ -190,40 +118,36 @@ private fun WheelPicker(
             }
         }
 
-        val firstVisibleItemScrollOffsetPercentage by remember {
-            derivedStateOf { (firstVisibleItemScrollOffset.toFloat() / itemBoxMainAxisPx) }
-        }
-
         val lazyListContent: LazyListScope.() -> Unit = {
             items(count = Int.MAX_VALUE) { scrollIndex ->
-                ItemSizedBox(
+                val itemIndex = scrollIndex % state.itemCount
+                ItemBox(
+                    index = scrollIndex,
+                    makeCoeff = {
+//                            val positionPercentage = (scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage) / totalItems
+                        val centerBorderingCoeff =
+                            scrollIndex - state.firstVisibleItemIndex - state.unfocusedItemCountToEitherSide + 1 - state.firstVisibleItemScrollOffsetPercentage
+                        if (centerBorderingCoeff in range) {
+                            1 - abs(1 - centerBorderingCoeff)// 0 -> 0, 1 -> 1, 2 -> 0
+                        } else {
+                            0.0f
+                        }
+                    },
                     modifier = itemBoxModifier
                 ) {
-                    val itemIndex = scrollIndex % itemCount
-                    ItemDisplay(
-                        index = scrollIndex,
-                        makeCoeff = {
-//                            val positionPercentage = (scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage) / totalItems
-                            val centerBorderingCoeff =
-                                scrollIndex - firstVisibleItemIndex - unfocusedItemCount + 1 - firstVisibleItemScrollOffsetPercentage
-                            if (centerBorderingCoeff in range) {
-                                val centerMaxEdgesMinMapping =
-                                    1 - abs(1 - centerBorderingCoeff)// 0 = 0, 1 = 1, 2 = 0
-                                centerMaxEdgesMinMapping * 0.4f + 0.6f
-                            } else {
-                                0.6f
-                            }
-                        }
-                    ) {
-                        content(itemIndex)
-                    }
+                    content(itemIndex)
                 }
             }
         }
 
+        val snapFlingBehavior = rememberSnapFlingBehavior(
+            lazyListState = state.lazyListState,
+            animationSpecs = snapFlingBehaviorAnimationSpecs
+        )
+
         if (isVertical) {
             LazyColumn(
-                state = lazyListState,
+                state = state.lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 reverseLayout = reverseLayout,
                 userScrollEnabled = userScrollEnabled,
@@ -233,7 +157,7 @@ private fun WheelPicker(
             )
         } else {
             LazyRow(
-                state = lazyListState,
+                state = state.lazyListState,
                 verticalAlignment = Alignment.CenterVertically,
                 reverseLayout = reverseLayout,
                 userScrollEnabled = userScrollEnabled,
@@ -242,12 +166,7 @@ private fun WheelPicker(
                 flingBehavior = snapFlingBehavior
             )
         }
-
-        ItemSizedBox(
-            modifier = itemBoxModifier
-        ) {
-            focus()
-        }
+        focusBoxOverlay(itemBoxModifier)
     }
 }
 
@@ -255,25 +174,21 @@ private fun WheelPicker(
 @Composable
 private fun rememberSnapFlingBehavior(
     lazyListState: LazyListState,
-    lowVelocityApproachAnimationSpec: AnimationSpec<Float>,
-    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float>,
-    snapAnimationSpec: AnimationSpec<Float>
+    animationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs,
 ): SnapFlingBehavior {
     val snapLayoutInfoProvider = remember(lazyListState) { SnapLayoutInfoProvider(lazyListState) }
     val density = LocalDensity.current
 
     return remember(
         snapLayoutInfoProvider,
-        lowVelocityApproachAnimationSpec,
-        highVelocityApproachAnimationSpec,
-        snapAnimationSpec,
+        animationSpecs,
         density
     ) {
         SnapFlingBehavior(
             snapLayoutInfoProvider = snapLayoutInfoProvider,
-            lowVelocityAnimationSpec = lowVelocityApproachAnimationSpec,
-            highVelocityAnimationSpec = highVelocityApproachAnimationSpec,
-            snapAnimationSpec = snapAnimationSpec
+            lowVelocityAnimationSpec = animationSpecs.lowVelocityApproach,
+            highVelocityAnimationSpec = animationSpecs.highVelocityApproach,
+            snapAnimationSpec = animationSpecs.snap
         )
     }
 }
@@ -281,23 +196,7 @@ private fun rememberSnapFlingBehavior(
 private val range = (0.0f..2f)
 
 @Composable
-private fun ItemSizedBox(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {},
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        content()
-    }
-}
-
-/**
- * Default display.
- */
-@Composable
-private fun ItemDisplay(
+private fun ItemBox(
     index: Int,
     makeCoeff: () -> Float,
     modifier: Modifier = Modifier,
@@ -305,11 +204,12 @@ private fun ItemDisplay(
 ) {
     Box(
         modifier = modifier.graphicsLayer {
-            val coeff = makeCoeff()
+            val coeff = makeCoeff().coerceAtLeast(0.6f)
             this.alpha = coeff
             this.scaleX = coeff
             this.scaleY = coeff
-        }
+        },
+        contentAlignment = Alignment.Center
     ) {
         content(index)
     }

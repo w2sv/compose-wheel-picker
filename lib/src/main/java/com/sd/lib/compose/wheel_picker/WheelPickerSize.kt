@@ -15,25 +15,25 @@ internal data class WheelPickerSize(
     constructor(
         itemBoxMainAxis: Dp,
         itemBoxCrossAxis: Dp,
-        unfocusedItemCount: Int
+        visibleItemCount: Int
     ) : this(
         itemBoxMainAxis = itemBoxMainAxis,
         crossAxis = itemBoxCrossAxis,
-        mainAxis = itemBoxMainAxis * (unfocusedItemCount * 2 + 1)
+        mainAxis = itemBoxMainAxis * visibleItemCount
     )
 }
 
 @Composable
 internal fun rememberWheelPickerSize(
     itemSize: DpSize,
-    unfocusedItemCount: Int,
+    visibleItemCount: Int,
     verticalLayout: Boolean
 ): WheelPickerSize {
-    return remember(itemSize, unfocusedItemCount, verticalLayout) {
+    return remember(itemSize, visibleItemCount, verticalLayout) {
         WheelPickerSize(
             itemBoxMainAxis = itemSize.mainAxis(verticalLayout),
             itemBoxCrossAxis = itemSize.crossAxis(verticalLayout),
-            unfocusedItemCount = unfocusedItemCount
+            visibleItemCount = visibleItemCount
         )
     }
 }
