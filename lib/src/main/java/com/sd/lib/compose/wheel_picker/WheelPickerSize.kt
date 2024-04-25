@@ -2,6 +2,7 @@ package com.sd.lib.compose.wheel_picker
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 
@@ -28,11 +29,13 @@ internal fun rememberWheelPickerSize(
     unfocusedItemCount: Int,
     verticalLayout: Boolean
 ): WheelPickerSize {
-    return WheelPickerSize(
-        itemBoxMainAxis = itemSize.mainAxis(verticalLayout),
-        itemBoxCrossAxis = itemSize.crossAxis(verticalLayout),
-        unfocusedItemCount = unfocusedItemCount
-    )
+    return remember(itemSize, unfocusedItemCount, verticalLayout) {
+        WheelPickerSize(
+            itemBoxMainAxis = itemSize.mainAxis(verticalLayout),
+            itemBoxCrossAxis = itemSize.crossAxis(verticalLayout),
+            unfocusedItemCount = unfocusedItemCount
+        )
+    }
 }
 
 private fun DpSize.mainAxis(verticalLayout: Boolean): Dp =

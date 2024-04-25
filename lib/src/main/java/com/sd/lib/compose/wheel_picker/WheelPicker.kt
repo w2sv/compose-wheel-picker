@@ -1,7 +1,6 @@
 package com.sd.lib.compose.wheel_picker
 
 import androidx.annotation.IntRange
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -21,8 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import slimber.log.i
+import kotlin.math.abs
 
 @Composable
 fun VerticalWheelPicker(
@@ -109,15 +111,20 @@ private fun WheelPicker(
         require(unfocusedItemCount >= 0) { "require unfocusedCount >= 0" }
     }
 
+    val totalItems = remember(unfocusedItemCount) {
+        unfocusedItemCount + 2 + 1
+    }
+
     val lazyListState = rememberLazyListState()
     val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
 
     val firstVisibleItemIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
     val isScrollInProgress = lazyListState.isScrollInProgress
 
-    val focusedIndex = remember(firstVisibleItemIndex) {
-        firstVisibleItemIndex + unfocusedItemCount
-    }
+    val itemBoxMainAxisPx =
+        with(LocalDensity.current) { size.itemBoxMainAxis.toPx().toInt() }.toFloat()
+
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { lazyListState.firstVisibleItemScrollOffset } }
 
     // Scroll to start index
     LaunchedEffect(startIndex) {
@@ -155,13 +162,37 @@ private fun WheelPicker(
             }
         }
 
+        LaunchedEffect(firstVisibleItemIndex) {
+            i { "First visible item index: $firstVisibleItemIndex" }
+        }
+
+        val firstVisibleItemScrollOffsetPercentage by remember {
+            derivedStateOf { (firstVisibleItemScrollOffset.toFloat() / itemBoxMainAxisPx).also { i { "Offset percentage: $it" } } }
+        }
+
         val lazyListContent: LazyListScope.() -> Unit = {
             items(count = Int.MAX_VALUE) { scrollIndex ->
                 ItemSizedBox(
                     modifier = itemBoxModifier
                 ) {
-                    ItemDisplay(index = scrollIndex, isFocused = scrollIndex == focusedIndex) {
-                        content(scrollIndex % itemCount)
+                    val itemIndex = scrollIndex % itemCount
+                    ItemDisplay(
+                        index = scrollIndex,
+                        makeCoeff = {
+//                            val positionPercentage = (scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage) / totalItems
+                            val centerBorderingCoeff =
+                                scrollIndex - firstVisibleItemIndex - unfocusedItemCount + 1 - firstVisibleItemScrollOffsetPercentage
+                            if (itemIndex == 26) {
+                                i { centerBorderingCoeff.toString() }
+                            }
+                            if (centerBorderingCoeff in range) {
+                                1 - abs(1 - centerBorderingCoeff)
+                            } else {
+                                0.5f
+                            }
+                        }
+                    ) {
+                        content(itemIndex)
                     }
                 }
             }
@@ -197,6 +228,8 @@ private fun WheelPicker(
     }
 }
 
+private val range = (0.5f..1.5f)
+
 @Composable
 private fun ItemSizedBox(
     modifier: Modifier = Modifier,
@@ -216,21 +249,16 @@ private fun ItemSizedBox(
 @Composable
 private fun ItemDisplay(
     index: Int,
-    isFocused: Boolean,
+    makeCoeff: () -> Float,
     modifier: Modifier = Modifier,
     content: @Composable (index: Int) -> Unit
 ) {
-    val scale by animateFloatAsState(
-        remember(isFocused) {
-            if (isFocused) 1.0f else 0.8f
-        },
-        label = ""
-    )
     Box(
         modifier = modifier.graphicsLayer {
-            this.alpha = if (isFocused) 1.0f else 0.3f
-            this.scaleX = scale
-            this.scaleY = scale
+            val coeff = makeCoeff()
+            this.alpha = coeff
+            this.scaleX = coeff
+            this.scaleY = coeff
         }
     ) {
         content(index)
