@@ -29,7 +29,7 @@ fun VerticalWheelPicker(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
-    focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusVertical(modifier = it) },
+    focusBoxOverlay: @Composable (Modifier) -> Unit = {},
     item: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
@@ -57,7 +57,7 @@ fun HorizontalWheelPicker(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
-    focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusHorizontal(modifier = it) },
+    focusBoxOverlay: @Composable (Modifier) -> Unit = {},
     item: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
