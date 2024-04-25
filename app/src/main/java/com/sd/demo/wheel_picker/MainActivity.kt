@@ -5,10 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +53,7 @@ private fun MainView() {
         val state = rememberWheelPickerState(
             itemCount = 50,
             startIndex = 25,
-            unfocusedItemCountToEitherSide = 3
+            unfocusedItemCountToEitherSide = 2
         )
             .apply {
                 LaunchedEffect(snappedIndex) {
@@ -61,7 +66,18 @@ private fun MainView() {
             itemSize = DpSize(56.dp, 56.dp),
             snapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(
                 snap = remember { spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow) }
-            )
+            ),
+            focusBoxOverlay = {
+                Box(
+                    modifier = it
+                        .fillMaxSize()
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                )
+            }
         ) { index ->
             Text(index.toString(), fontSize = 18.sp)
         }

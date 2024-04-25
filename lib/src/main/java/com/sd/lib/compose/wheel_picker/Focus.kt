@@ -20,7 +20,7 @@ fun WheelPickerFocusVertical(
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         HorizontalDivider(
             thickness = dividerThickness,
             color = dividerColor,
@@ -45,7 +45,7 @@ fun WheelPickerFocusHorizontal(
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerColor: Color = DividerDefaults.color,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         VerticalDivider(
             thickness = dividerThickness,
             color = dividerColor,

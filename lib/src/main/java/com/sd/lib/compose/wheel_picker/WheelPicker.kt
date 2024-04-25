@@ -30,7 +30,7 @@ fun VerticalWheelPicker(
     reverseLayout: Boolean = false,
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
     focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusVertical(modifier = it) },
-    content: @Composable (index: Int) -> Unit,
+    item: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
         state = state,
@@ -45,7 +45,7 @@ fun VerticalWheelPicker(
         reverseLayout = reverseLayout,
         snapFlingBehaviorAnimationSpecs = snapFlingBehaviorAnimationSpecs,
         focusBoxOverlay = focusBoxOverlay,
-        content = content,
+        item = item,
     )
 }
 
@@ -58,7 +58,7 @@ fun HorizontalWheelPicker(
     reverseLayout: Boolean = false,
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.snapFlingBehaviorAnimationSpecs(),
     focusBoxOverlay: @Composable (Modifier) -> Unit = { WheelPickerFocusHorizontal(modifier = it) },
-    content: @Composable (index: Int) -> Unit,
+    item: @Composable (index: Int) -> Unit,
 ) {
     WheelPicker(
         state = state,
@@ -73,7 +73,7 @@ fun HorizontalWheelPicker(
         reverseLayout = reverseLayout,
         snapFlingBehaviorAnimationSpecs = snapFlingBehaviorAnimationSpecs,
         focusBoxOverlay = focusBoxOverlay,
-        content = content,
+        item = item,
     )
 }
 
@@ -88,7 +88,7 @@ private fun WheelPicker(
     reverseLayout: Boolean,
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs,
     focusBoxOverlay: @Composable (Modifier) -> Unit,
-    content: @Composable (index: Int) -> Unit,
+    item: @Composable (index: Int) -> Unit,
 ) {
     val itemBoxMainAxisPx = with(LocalDensity.current) { size.itemBoxMainAxis.toPx() }
     LaunchedEffect(state, itemBoxMainAxisPx) {
@@ -135,7 +135,7 @@ private fun WheelPicker(
                     },
                     modifier = itemBoxModifier
                 ) {
-                    content(itemIndex)
+                    item(itemIndex)
                 }
             }
         }
