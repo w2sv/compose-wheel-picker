@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import slimber.log.i
 import kotlin.math.abs
 
 @Composable
@@ -131,8 +130,9 @@ private fun WheelPicker(
     focus: @Composable () -> Unit,
     content: @Composable (index: Int) -> Unit,
 ) {
-    LaunchedEffect(unfocusedItemCount) {
-        require(unfocusedItemCount >= 0) { "require unfocusedCount >= 0" }
+    LaunchedEffect(unfocusedItemCount, itemCount) {
+        require(itemCount >= 0) { "itemCount >= 0 required" }
+        require(unfocusedItemCount >= 0) { "unfocusedCount >= 0 required" }
     }
 
     val totalItems = remember(unfocusedItemCount) {
@@ -150,8 +150,7 @@ private fun WheelPicker(
     val firstVisibleItemIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
     val isScrollInProgress = lazyListState.isScrollInProgress
 
-    val itemBoxMainAxisPx =
-        with(LocalDensity.current) { size.itemBoxMainAxis.toPx().toInt() }.toFloat()
+    val itemBoxMainAxisPx by remember { derivedStateOf { lazyListState.layoutInfo.mainAxisItemSpacing } }
 
     val firstVisibleItemScrollOffset by remember { derivedStateOf { lazyListState.firstVisibleItemScrollOffset } }
 
@@ -191,12 +190,8 @@ private fun WheelPicker(
             }
         }
 
-        LaunchedEffect(firstVisibleItemIndex) {
-            i { "First visible item index: $firstVisibleItemIndex" }
-        }
-
         val firstVisibleItemScrollOffsetPercentage by remember {
-            derivedStateOf { (firstVisibleItemScrollOffset.toFloat() / itemBoxMainAxisPx).also { i { "Offset percentage: $it" } } }
+            derivedStateOf { (firstVisibleItemScrollOffset.toFloat() / itemBoxMainAxisPx) }
         }
 
         val lazyListContent: LazyListScope.() -> Unit = {
@@ -211,13 +206,12 @@ private fun WheelPicker(
 //                            val positionPercentage = (scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage) / totalItems
                             val centerBorderingCoeff =
                                 scrollIndex - firstVisibleItemIndex - unfocusedItemCount + 1 - firstVisibleItemScrollOffsetPercentage
-                            if (itemIndex == 26) {
-                                i { centerBorderingCoeff.toString() }
-                            }
                             if (centerBorderingCoeff in range) {
-                                1 - abs(1 - centerBorderingCoeff)
+                                val centerMaxEdgesMinMapping =
+                                    1 - abs(1 - centerBorderingCoeff)// 0 = 0, 1 = 1, 2 = 0
+                                centerMaxEdgesMinMapping * 0.4f + 0.6f
                             } else {
-                                0.5f
+                                0.6f
                             }
                         }
                     ) {
@@ -284,7 +278,7 @@ private fun rememberSnapFlingBehavior(
     }
 }
 
-private val range = (0.5f..1.5f)
+private val range = (0.0f..2f)
 
 @Composable
 private fun ItemSizedBox(
