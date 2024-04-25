@@ -1,8 +1,16 @@
 package com.sd.lib.compose.wheel_picker
 
 import androidx.annotation.IntRange
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -10,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -36,6 +45,9 @@ fun VerticalWheelPicker(
     itemSize: DpSize = WheelPickerDefaults.itemSize,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
+    lowVelocityApproachAnimationSpec: AnimationSpec<Float> = remember { tween(easing = LinearEasing) },
+    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+    snapAnimationSpec: AnimationSpec<Float> = remember { spring(stiffness = Spring.StiffnessMediumLow) },
     focus: @Composable () -> Unit = { WheelPickerFocusVertical(modifier = Modifier.width(itemSize.width)) },
     content: @Composable (index: Int) -> Unit,
 ) {
@@ -53,6 +65,9 @@ fun VerticalWheelPicker(
         ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
+        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
+        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
+        snapAnimationSpec = snapAnimationSpec,
         focus = focus,
         content = content,
     )
@@ -68,6 +83,9 @@ fun HorizontalWheelPicker(
     itemSize: DpSize = WheelPickerDefaults.itemSize,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
+    lowVelocityApproachAnimationSpec: AnimationSpec<Float> = remember { tween(easing = LinearEasing) },
+    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+    snapAnimationSpec: AnimationSpec<Float> = remember { spring(stiffness = Spring.StiffnessMediumLow) },
     focus: @Composable () -> Unit = { WheelPickerFocusHorizontal(modifier = Modifier.height(itemSize.height)) },
     content: @Composable (index: Int) -> Unit,
 ) {
@@ -85,6 +103,9 @@ fun HorizontalWheelPicker(
         ),
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
+        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
+        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
+        snapAnimationSpec = snapAnimationSpec,
         focus = focus,
         content = content,
     )
@@ -104,6 +125,9 @@ private fun WheelPicker(
     size: WheelPickerSize,
     userScrollEnabled: Boolean,
     reverseLayout: Boolean,
+    lowVelocityApproachAnimationSpec: AnimationSpec<Float>,
+    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float>,
+    snapAnimationSpec: AnimationSpec<Float>,
     focus: @Composable () -> Unit,
     content: @Composable (index: Int) -> Unit,
 ) {
@@ -116,7 +140,12 @@ private fun WheelPicker(
     }
 
     val lazyListState = rememberLazyListState()
-    val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
+    val snapFlingBehavior = rememberSnapFlingBehavior(
+        lazyListState = lazyListState,
+        lowVelocityApproachAnimationSpec = lowVelocityApproachAnimationSpec,
+        highVelocityApproachAnimationSpec = highVelocityApproachAnimationSpec,
+        snapAnimationSpec = snapAnimationSpec
+    )
 
     val firstVisibleItemIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
     val isScrollInProgress = lazyListState.isScrollInProgress
@@ -225,6 +254,33 @@ private fun WheelPicker(
         ) {
             focus()
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun rememberSnapFlingBehavior(
+    lazyListState: LazyListState,
+    lowVelocityApproachAnimationSpec: AnimationSpec<Float>,
+    highVelocityApproachAnimationSpec: DecayAnimationSpec<Float>,
+    snapAnimationSpec: AnimationSpec<Float>
+): SnapFlingBehavior {
+    val snapLayoutInfoProvider = remember(lazyListState) { SnapLayoutInfoProvider(lazyListState) }
+    val density = LocalDensity.current
+
+    return remember(
+        snapLayoutInfoProvider,
+        lowVelocityApproachAnimationSpec,
+        highVelocityApproachAnimationSpec,
+        snapAnimationSpec,
+        density
+    ) {
+        SnapFlingBehavior(
+            snapLayoutInfoProvider = snapLayoutInfoProvider,
+            lowVelocityAnimationSpec = lowVelocityApproachAnimationSpec,
+            highVelocityAnimationSpec = highVelocityApproachAnimationSpec,
+            snapAnimationSpec = snapAnimationSpec
+        )
     }
 }
 
