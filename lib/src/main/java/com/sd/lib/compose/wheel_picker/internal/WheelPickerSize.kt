@@ -1,4 +1,4 @@
-package com.sd.lib.compose.wheel_picker
+package com.sd.lib.compose.wheel_picker.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
