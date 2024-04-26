@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.slimber)
     implementation(libs.androidx.compose.material3)
+    lintChecks(libs.compose.lint.checks)
 }
