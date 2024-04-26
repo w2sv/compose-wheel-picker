@@ -8,13 +8,46 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 private const val MAX_INT_VALUE_HALVE = 1073741824
 
+@Composable
+fun rememberWheelPickerState(
+    @IntRange(from = 0) itemCount: Int,
+    @IntRange(from = 0) startIndex: Int = 0,
+    @IntRange(from = 0) unfocusedItemCountToEitherSide: Int = 2
+): WheelPickerState =
+    rememberSaveable(saver = WheelPickerState.Saver) {
+        WheelPickerState(
+            itemCount = itemCount,
+            unfocusedItemCountToEitherSide = unfocusedItemCountToEitherSide,
+            startIndex = startIndex
+        )
+    }
+        .also {
+            // Scroll to start index
+            LaunchedEffect(it.startIndex) {
+                it.scrollToStartIndex()
+            }
+
+            // Set snappedIndex on snap
+            LaunchedEffect(it.isScrollInProgress) {
+                if (!it.isScrollInProgress) {
+                    it.setSnappedIndex()
+                }
+            }
+        }
+
 @Stable
-class WheelPickerState(val itemCount: Int, val unfocusedItemCountToEitherSide: Int) {
+data class WheelPickerState(
+    @IntRange(from = 0) val itemCount: Int,
+    @IntRange(from = 0) val unfocusedItemCountToEitherSide: Int,
+    @IntRange(from = 0) internal val startIndex: Int
+) {
 
     internal var itemBoxMainAxisPx by mutableStateOf<Float?>(null)
 
@@ -36,9 +69,13 @@ class WheelPickerState(val itemCount: Int, val unfocusedItemCountToEitherSide: I
     val isScrollInProgress by derivedStateOf { lazyListState.isScrollInProgress }
 
     var snappedIndex by mutableStateOf<Int?>(null)
-        internal set
+        private set
 
-    internal suspend fun scrollToStartIndex(@IntRange(from = 0) startIndex: Int) {
+    internal fun setSnappedIndex() {
+        snappedIndex = (firstVisibleItemIndex + unfocusedItemCountToEitherSide) % itemCount
+    }
+
+    internal suspend fun scrollToStartIndex() {
         val offsetZeroIndex = MAX_INT_VALUE_HALVE - MAX_INT_VALUE_HALVE % itemCount
         scrollToItem(offsetZeroIndex + startIndex - unfocusedItemCountToEitherSide)
     }
@@ -50,30 +87,19 @@ class WheelPickerState(val itemCount: Int, val unfocusedItemCountToEitherSide: I
     suspend fun animateScrollToItem(@IntRange(from = 0) index: Int) {
         lazyListState.animateScrollToItem(index)
     }
-}
 
-@Composable
-fun rememberWheelPickerState(
-    itemCount: Int,
-    startIndex: Int = 0,
-    unfocusedItemCountToEitherSide: Int = 2
-): WheelPickerState =
-    remember {
-        WheelPickerState(
-            itemCount = itemCount,
-            unfocusedItemCountToEitherSide = unfocusedItemCountToEitherSide
+    companion object {
+        val Saver: Saver<WheelPickerState, Any> = listSaver(
+            save = {
+                listOf(it.itemCount, it.unfocusedItemCountToEitherSide, it.firstVisibleItemIndex)
+            },
+            restore = {
+                WheelPickerState(
+                    itemCount = it[0],
+                    unfocusedItemCountToEitherSide = it[1],
+                    startIndex = it[2]
+                )
+            }
         )
     }
-        .apply {
-            // Scroll to start index
-            LaunchedEffect(startIndex) {
-                scrollToStartIndex(startIndex)
-            }
-
-            // Set snappedIndex on snap
-            LaunchedEffect(isScrollInProgress) {
-                if (!isScrollInProgress) {
-                    snappedIndex = (firstVisibleItemIndex + unfocusedItemCountToEitherSide) % itemCount
-                }
-            }
-        }
+}
