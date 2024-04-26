@@ -60,15 +60,6 @@ private fun MainView() {
                 }
             }
 
-//        var targetIndex by remember {
-//            mutableIntStateOf(0)
-//        }
-//        LaunchedEffect(targetIndex) {
-//            state.animateScrollToItem(targetIndex)
-//            delay(2_000)
-//            targetIndex += 13
-//        }
-
         WheelPicker(
             state = state,
             itemSize = DpSize(56.dp, 56.dp),

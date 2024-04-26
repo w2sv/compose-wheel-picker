@@ -15,10 +15,6 @@ android {
         minSdk = libs.versions.androidMinSdk.get().toInt()
     }
 
-    kotlinOptions {
-        freeCompilerArgs += "-module-name=$libGroupId.$libArtifactId"
-    }
-
     buildFeatures {
         compose = true
     }

@@ -78,10 +78,9 @@ fun WheelPicker(
         val lazyListContent: LazyListScope.() -> Unit = remember(state) {
             {
                 items(count = Int.MAX_VALUE) { scrollIndex ->
-                    val normalizedRelativePosition = state.normalizedRelativePosition(scrollIndex)
                     Box(
                         modifier = itemBoxModifier.graphicsLayer {
-                            normalizedRelativePosition?.let {
+                            state.normalizedRelativePosition(scrollIndex)?.let {
                                 itemBoxGraphicsLayerScope(it)
                             }
                         },

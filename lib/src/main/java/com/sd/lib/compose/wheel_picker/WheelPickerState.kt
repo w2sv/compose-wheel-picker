@@ -1,6 +1,7 @@
 package com.sd.lib.compose.wheel_picker
 
 import androidx.annotation.IntRange
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,20 +60,27 @@ data class WheelPickerState(
     val visibleItemCount = unfocusedItemCountToEitherSide * 2 + 1
 
     internal val lazyListState = LazyListState()
-    val layoutInfo by derivedStateOf { lazyListState.layoutInfo }
 
-    val firstVisibleItemIndex by derivedStateOf { lazyListState.firstVisibleItemIndex }
-    val firstVisibleItemScrollOffset by derivedStateOf { lazyListState.firstVisibleItemScrollOffset }
-    val firstVisibleItemScrollOffsetPercentage by derivedStateOf {
+    /**
+     * @see [LazyListState.layoutInfo].
+     */
+    val layoutInfo: LazyListLayoutInfo get() = lazyListState.layoutInfo
+
+    private val firstVisibleScrollItemIndex: Int get() = lazyListState.firstVisibleItemIndex
+    val firstVisibleItemScrollOffset: Int get() = lazyListState.firstVisibleItemScrollOffset
+
+    val isScrollInProgress: Boolean get() = lazyListState.isScrollInProgress
+
+    val firstVisibleItemIndex by derivedStateOf { firstVisibleScrollItemIndex % itemCount }
+    private val firstVisibleItemScrollOffsetPercentage by derivedStateOf {
         itemBoxMainAxisPx?.let { firstVisibleItemScrollOffset.toFloat() / it } ?: 0.0f
     }
-    val isScrollInProgress by derivedStateOf { lazyListState.isScrollInProgress }
 
     var snappedIndex by mutableStateOf<Int?>(null)
         private set
 
     internal fun setSnappedIndex() {
-        snappedIndex = (firstVisibleItemIndex + unfocusedItemCountToEitherSide) % itemCount
+        snappedIndex = (firstVisibleScrollItemIndex + unfocusedItemCountToEitherSide) % itemCount
     }
 
     internal suspend fun scrollToStartIndex() {
@@ -90,7 +98,7 @@ data class WheelPickerState(
 
     internal fun normalizedRelativePosition(scrollIndex: Int): Float? {
         val relativePosition =
-            scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage  // Value from -1 to nVisibleItems for visible items
+            scrollIndex - firstVisibleScrollItemIndex - firstVisibleItemScrollOffsetPercentage  // Value from -1 to nVisibleItems for visible items
         return if (relativePosition in visibleItemPositionRange) {
             ((relativePosition + 1f) / (visibleItemCount + 1f) * 2f - 1f).also { i { "${scrollIndex / itemCount}: $it" } }  // Value from -1 to 1
         } else {
@@ -103,15 +111,17 @@ data class WheelPickerState(
     companion object {
         val Saver: Saver<WheelPickerState, Any> = listSaver(
             save = {
-                listOf(it.itemCount, it.unfocusedItemCountToEitherSide, it.firstVisibleItemIndex)
+                listOf(
+                    it.itemCount,
+                    it.unfocusedItemCountToEitherSide,
+                    it.firstVisibleItemIndex
+                )
             },
             restore = {
-                val itemCount = it[0]
-                val unfocusedItemCountToEitherSide = it[1]
                 WheelPickerState(
-                    itemCount = itemCount,
-                    unfocusedItemCountToEitherSide = unfocusedItemCountToEitherSide,
-                    startIndex = it[2] % itemCount + unfocusedItemCountToEitherSide
+                    itemCount = it[0],
+                    unfocusedItemCountToEitherSide = it[1],
+                    startIndex = it[2] + it[1]
                 )
             }
         )
