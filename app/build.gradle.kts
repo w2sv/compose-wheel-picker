@@ -52,6 +52,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
     implementation(libs.slimber)
-
-    implementation(project(":lib"))
+    implementation(project(":wheelpicker"))
 }

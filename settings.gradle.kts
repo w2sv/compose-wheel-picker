@@ -19,4 +19,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "compose-wheel-picker"
 include(":app")
-include(":lib")
+include(":wheelpicker")
