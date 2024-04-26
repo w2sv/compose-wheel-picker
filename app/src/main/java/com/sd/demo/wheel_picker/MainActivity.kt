@@ -17,10 +17,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +31,7 @@ import com.sd.demo.wheel_picker.ui.theme.AppTheme
 import com.sd.lib.compose.wheel_picker.VerticalWheelPicker
 import com.sd.lib.compose.wheel_picker.WheelPickerDefaults
 import com.sd.lib.compose.wheel_picker.rememberWheelPickerState
+import kotlinx.coroutines.delay
 import slimber.log.i
 
 class MainActivity : ComponentActivity() {
@@ -53,13 +57,22 @@ private fun MainView() {
         val state = rememberWheelPickerState(
             itemCount = 50,
             startIndex = 25,
-            unfocusedItemCountToEitherSide = 2
+            unfocusedItemCountToEitherSide = 2,
         )
             .apply {
                 LaunchedEffect(snappedIndex) {
                     i { "Snapped index: $snappedIndex" }
                 }
             }
+
+//        var targetIndex by remember {
+//            mutableIntStateOf(0)
+//        }
+//        LaunchedEffect(targetIndex) {
+//            state.animateScrollToItem(targetIndex)
+//            delay(2_000)
+//            targetIndex += 13
+//        }
 
         VerticalWheelPicker(
             state = state,
@@ -77,7 +90,7 @@ private fun MainView() {
                             shape = RoundedCornerShape(12.dp)
                         )
                 )
-            }
+            },
         ) { index ->
             Text(index.toString(), fontSize = 18.sp)
         }

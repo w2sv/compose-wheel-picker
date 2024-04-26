@@ -48,7 +48,6 @@ data class WheelPickerState(
     @IntRange(from = 0) val unfocusedItemCountToEitherSide: Int,
     @IntRange(from = 0) internal val startIndex: Int
 ) {
-
     internal var itemBoxMainAxisPx by mutableStateOf<Float?>(null)
 
     init {
@@ -94,10 +93,12 @@ data class WheelPickerState(
                 listOf(it.itemCount, it.unfocusedItemCountToEitherSide, it.firstVisibleItemIndex)
             },
             restore = {
+                val itemCount = it[0]
+                val unfocusedItemCountToEitherSide = it[1]
                 WheelPickerState(
-                    itemCount = it[0],
-                    unfocusedItemCountToEitherSide = it[1],
-                    startIndex = it[2]
+                    itemCount = itemCount,
+                    unfocusedItemCountToEitherSide = unfocusedItemCountToEitherSide,
+                    startIndex = it[2] % itemCount + unfocusedItemCountToEitherSide
                 )
             }
         )
