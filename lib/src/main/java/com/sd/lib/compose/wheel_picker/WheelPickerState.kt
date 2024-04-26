@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import slimber.log.i
 
 private const val MAX_INT_VALUE_HALVE = 1073741824
 
@@ -21,7 +22,7 @@ fun rememberWheelPickerState(
     @IntRange(from = 0) startIndex: Int = 0,
     @IntRange(from = 0) unfocusedItemCountToEitherSide: Int = 2
 ): WheelPickerState =
-    rememberSaveable(saver = WheelPickerState.Saver) {
+    rememberSaveable(itemCount, unfocusedItemCountToEitherSide, saver = WheelPickerState.Saver) {
         WheelPickerState(
             itemCount = itemCount,
             unfocusedItemCountToEitherSide = unfocusedItemCountToEitherSide,
@@ -86,6 +87,18 @@ data class WheelPickerState(
     suspend fun animateScrollToItem(@IntRange(from = 0) index: Int) {
         lazyListState.animateScrollToItem(index)
     }
+
+    internal fun normalizedRelativePosition(scrollIndex: Int): Float? {
+        val relativePosition =
+            scrollIndex - firstVisibleItemIndex - firstVisibleItemScrollOffsetPercentage  // Value from -1 to nVisibleItems for visible items
+        return if (relativePosition in visibleItemPositionRange) {
+            ((relativePosition + 1f) / (visibleItemCount + 1f) * 2f - 1f).also { i { "${scrollIndex / itemCount}: $it" } }  // Value from -1 to 1
+        } else {
+            null
+        }
+    }
+
+    private val visibleItemPositionRange = (-1f..visibleItemCount.toFloat())
 
     companion object {
         val Saver: Saver<WheelPickerState, Any> = listSaver(

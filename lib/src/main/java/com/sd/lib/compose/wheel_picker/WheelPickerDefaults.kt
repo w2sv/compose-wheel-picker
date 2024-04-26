@@ -16,7 +16,7 @@ object WheelPickerDefaults {
     val itemSize: DpSize = DpSize(42.dp, 42.dp)
 
     @Composable
-    fun snapFlingBehaviorAnimationSpecs(
+    fun rememberSnapFlingBehaviorAnimationSpecs(
         lowVelocityApproach: AnimationSpec<Float> = remember { tween(easing = LinearEasing) },
         highVelocityApproach: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snap: AnimationSpec<Float> = remember { spring(stiffness = Spring.StiffnessMediumLow) }
