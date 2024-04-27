@@ -45,7 +45,7 @@ fun WheelPicker(
 ) {
     val size = rememberWheelPickerSize(
         itemSize = itemSize,
-        visibleItemCount = state.visibleItemCount,
+        visibleItemCount = state.fullyVisibleItemCount,
         verticalLayout = true
     )
     val itemBoxMainAxisPx = with(LocalDensity.current) { size.itemBoxMainAxis.toPx() }
