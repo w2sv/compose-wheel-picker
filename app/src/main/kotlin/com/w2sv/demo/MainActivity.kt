@@ -8,9 +8,11 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,7 +37,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MainView()
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DurationPickerRow()
+                    }
                 }
             }
         }
@@ -43,42 +50,86 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MainView() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val state = rememberWheelPickerState(
-            itemCount = 50,
-            startIndex = 25,
-            unfocusedItemCountToEitherSide = 2,
-        )
-            .apply {
-                LaunchedEffect(snappedIndex) {
-                    i { "Snapped index: $snappedIndex" }
-                }
-            }
+private fun DurationPickerRow() {
+    val hourPickerState = rememberWheelPickerState(
+        itemCount = 24,
+        startIndex = 12,
+        unfocusedItemCountToEitherSide = 2,
+    )
+    val minutePickerState = rememberWheelPickerState(
+        itemCount = 60,
+        startIndex = 30,
+        unfocusedItemCountToEitherSide = 2,
+    )
 
+    LaunchedEffect(hourPickerState.snappedIndex, minutePickerState.snappedIndex) {
+        i { "Snapped indices: ${hourPickerState.snappedIndex} ${minutePickerState.snappedIndex}" }
+    }
+
+    Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
         WheelPicker(
-            state = state,
+            state = hourPickerState,
             itemSize = DpSize(56.dp, 56.dp),
             snapFlingBehaviorAnimationSpecs = WheelPickerDefaults.rememberSnapFlingBehaviorAnimationSpecs(
                 snap = remember { spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow) }
             ),
             focusBoxOverlay = {
-                Box(
-                    modifier = it
-                        .fillMaxSize()
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                )
+                FocusBoxOverlay(it)
+            },
+        ) { index ->
+            Text(index.toString(), fontSize = 18.sp)
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        WheelPicker(
+            state = minutePickerState,
+            itemSize = DpSize(56.dp, 56.dp),
+            snapFlingBehaviorAnimationSpecs = WheelPickerDefaults.rememberSnapFlingBehaviorAnimationSpecs(
+                snap = remember { spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow) }
+            ),
+            focusBoxOverlay = {
+                FocusBoxOverlay(it)
             },
         ) { index ->
             Text(index.toString(), fontSize = 18.sp)
         }
     }
+}
+
+@Composable
+private fun SingularWheelPicker() {
+    val state = rememberWheelPickerState(
+        itemCount = 60,
+        startIndex = 15,
+        unfocusedItemCountToEitherSide = 2,
+    )
+
+    LaunchedEffect(state.snappedIndex) {
+        i { "Snapped index: ${state.snappedIndex}" }
+    }
+
+    WheelPicker(
+        state = state,
+        itemSize = DpSize(56.dp, 56.dp),
+        snapFlingBehaviorAnimationSpecs = WheelPickerDefaults.rememberSnapFlingBehaviorAnimationSpecs(
+            snap = remember { spring(Spring.DampingRatioHighBouncy, Spring.StiffnessVeryLow) }
+        ),
+        focusBoxOverlay = {
+            FocusBoxOverlay(it)
+        },
+    ) { index ->
+        Text(index.toString(), fontSize = 18.sp)
+    }
+}
+
+@Composable
+private fun FocusBoxOverlay(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            )
+    )
 }

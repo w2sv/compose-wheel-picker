@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import slimber.log.i
 
 private const val MAX_INT_VALUE_HALVE = 1073741824
 
@@ -41,6 +42,7 @@ fun rememberWheelPickerState(
 
             // Set snappedIndex on snap
             LaunchedEffect(it.isScrollInProgress) {
+                i { "Setting snapped index on scroll stop" }
                 if (!it.isScrollInProgress) {
                     it.setSnappedIndex()
                 }

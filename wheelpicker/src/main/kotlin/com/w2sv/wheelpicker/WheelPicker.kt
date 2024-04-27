@@ -34,11 +34,13 @@ fun WheelPicker(
     snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.rememberSnapFlingBehaviorAnimationSpecs(),
     focusBoxOverlay: @Composable (Modifier) -> Unit = {},
     itemBoxGraphicsLayerScope: GraphicsLayerScope.(Float) -> Unit = remember {
-        {
-            val transitionCoefficient = (1 - abs(it)).coerceAtLeast(0.6f)
-            alpha = transitionCoefficient
-            scaleX = transitionCoefficient
-            scaleY = transitionCoefficient
+        { normalizedRelativePosition ->
+            val unsignedCenterDistance = 1 - abs(normalizedRelativePosition)
+            val alphaAndScale = unsignedCenterDistance * 0.5f + 0.5f  // Map to range [0.5, 1]
+            alpha = alphaAndScale
+            scaleX = alphaAndScale
+            scaleY = alphaAndScale
+            rotationX = normalizedRelativePosition * 60
         }
     },
     item: @Composable (index: Int) -> Unit,
