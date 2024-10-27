@@ -1,12 +1,12 @@
 package com.w2sv.wheelpicker
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 
-@Stable
+@Immutable
 internal data class WheelPickerSize(
     val itemBoxMainAxis: Dp,
     val crossAxis: Dp,

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
     `maven-publish`
 }
 
@@ -18,9 +19,6 @@ android {
         compose = true
         buildConfig = false
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -31,6 +29,14 @@ android {
             withSourcesJar()
         }
     }
+}
+
+// https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compiler.html#compose-compiler-options-dsl
+composeCompiler {
+    includeSourceInformation = true
+//    stabilityConfigurationFile.set(rootProject.file("compose_compiler_config.conf"))
+    metricsDestination.set(project.layout.buildDirectory.dir("compose_compiler"))
+    reportsDestination.set(project.layout.buildDirectory.dir("compose_compiler"))
 }
 
 publishing {

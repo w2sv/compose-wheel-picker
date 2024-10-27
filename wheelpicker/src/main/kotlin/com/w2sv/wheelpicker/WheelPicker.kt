@@ -1,8 +1,11 @@
 package com.w2sv.wheelpicker
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -31,7 +34,8 @@ fun WheelPicker(
     itemSize: DpSize = WheelPickerDefaults.itemSize,
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    snapFlingBehaviorAnimationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs = WheelPickerDefaults.rememberSnapFlingBehaviorAnimationSpecs(),
+    decayAnimationSpec: DecayAnimationSpec<Float> = WheelPickerDefaults.decayAnimationSpec,
+    snapAnimationSpec: AnimationSpec<Float> = WheelPickerDefaults.snapAnimationSpec,
     focusBoxOverlay: @Composable (Modifier) -> Unit = {},
     itemBoxGraphicsLayerScope: GraphicsLayerScope.(Float) -> Unit = remember {
         { normalizedRelativePosition ->
@@ -97,7 +101,8 @@ fun WheelPicker(
 
         val snapFlingBehavior = rememberSnapFlingBehavior(
             lazyListState = state.lazyListState,
-            animationSpecs = snapFlingBehaviorAnimationSpecs
+            decayAnimationSpec = decayAnimationSpec,
+            snapAnimationSpec = snapAnimationSpec
         )
 
         if (isVertical) {
@@ -129,21 +134,22 @@ fun WheelPicker(
 @Composable
 private fun rememberSnapFlingBehavior(
     lazyListState: LazyListState,
-    animationSpecs: WheelPickerSnapFlingBehaviorAnimationSpecs,
-): SnapFlingBehavior {
+    decayAnimationSpec: DecayAnimationSpec<Float>,
+    snapAnimationSpec: AnimationSpec<Float>
+): TargetedFlingBehavior {
     val snapLayoutInfoProvider = remember(lazyListState) { SnapLayoutInfoProvider(lazyListState) }
     val density = LocalDensity.current
 
     return remember(
         snapLayoutInfoProvider,
-        animationSpecs,
+        decayAnimationSpec,
+        snapAnimationSpec,
         density
     ) {
-        SnapFlingBehavior(
+        snapFlingBehavior(
             snapLayoutInfoProvider = snapLayoutInfoProvider,
-            lowVelocityAnimationSpec = animationSpecs.lowVelocityApproach,
-            highVelocityAnimationSpec = animationSpecs.highVelocityApproach,
-            snapAnimationSpec = animationSpecs.snap
+            decayAnimationSpec = decayAnimationSpec,
+            snapAnimationSpec = snapAnimationSpec
         )
     }
 }
